@@ -131,9 +131,10 @@ class SaqueControllerTest extends BaseContaTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andDo(print())
                         .andExpect(status().isNotFound())
-                        .andReturn().getResponse().getContentAsString();
+                        .andReturn().getResponse().getErrorMessage();
 
         contaBase = obtemContaDoBanco(contaBase);
+        assertEquals("Recurso não encontrado.", response);
         assertEquals(BigDecimal.valueOf(10), contaBase.getSaldo());
     }
 

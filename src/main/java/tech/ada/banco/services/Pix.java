@@ -22,9 +22,9 @@ public class Pix {
         Conta origem = repository.findContaByNumeroConta(contaOrigem).orElseThrow(ResourceNotFoundException::new);
         Conta destino = repository.findContaByNumeroConta(contaDestino).orElseThrow(ResourceNotFoundException::new);
 
-        if (valor.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Operação não foi realizada pois o valor da transação é negativo.");
-        }
+//        if (valor.compareTo(BigDecimal.ZERO) < 0) {
+//            throw new IllegalArgumentException("Operação não foi realizada pois o valor da transação é negativo.");
+//        }
 
         origem.saque(valor);
         repository.save(origem);

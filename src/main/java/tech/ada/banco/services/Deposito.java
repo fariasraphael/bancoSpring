@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 @Service
 @Slf4j
-public class Deposito {
+public final class Deposito {
 
     private final ContaRepository repository;
 
@@ -20,9 +20,10 @@ public class Deposito {
 
     public BigDecimal executar(int numeroConta, BigDecimal valor) {
         Conta conta = repository.findContaByNumeroConta(numeroConta).orElseThrow(ResourceNotFoundException::new);
+
         conta.deposito(valor);
-        log.info("O saldo da conta é de: R$ {}", conta.getSaldo());
         repository.save(conta);
+        log.info("O saldo da conta é de: R$ {}", conta.getSaldo());
         return conta.getSaldo();
     }
 }
