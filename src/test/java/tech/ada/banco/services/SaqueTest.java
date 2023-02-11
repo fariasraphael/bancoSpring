@@ -24,30 +24,30 @@ class SaqueTest {
     private final ContaRepository repository = Mockito.mock(ContaRepository.class);
     private final Saque saque = new Saque(repository);
 
-
+private Conta criarConta(double valor, int numeroDaConta){
+    Conta conta = new Conta(ModalidadeConta.CC, null);
+    conta.deposito(BigDecimal.valueOf(valor));
+    when(repository.findContaByNumeroConta(numeroDaConta)).thenReturn(Optional.of(conta));
+    assertEquals(BigDecimal.valueOf(valor), conta.getSaldo(),
+            "O saldo inicial da conta deve ser alterado para " + valor);
+    return conta;
+}
     @Test
     void testSaqueParcial() {
-        Conta conta = new Conta(ModalidadeConta.CC, null);
-        conta.deposito(BigDecimal.TEN);
-        when(repository.findContaByNumeroConta(10)).thenReturn(Optional.of(conta));
-        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(),
-                "O saldo inicial da conta deve ser alterado para 10");
+        Conta conta = criarConta(10,10);
 
         BigDecimal resp = saque.executar(10, BigDecimal.ONE.setScale(2));
 
         verify(repository, times(1)).save(conta);
         assertEquals(BigDecimal.valueOf(9).setScale(2), resp,
-                "O valor de retorno da função tem que ser 9." +
-                        "Saldo anterior vale 10 e o valor de saque é 1");
+                "O valor de retorno da função tem que ser 9.00" +
+                        "Saldo anterior vale 10.00 e o valor de saque é 1.00");
         assertEquals(BigDecimal.valueOf(9).setScale(2), conta.getSaldo());
     }
 
     @Test
     void testSaqueContaNaoEncontrada() {
-        Conta conta = new Conta(ModalidadeConta.CC, null);
-        conta.deposito(BigDecimal.TEN);
-        when(repository.findContaByNumeroConta(10)).thenReturn(Optional.of(conta));
-        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(), "O saldo inicial da conta deve ser alterado para 10");
+        Conta conta = criarConta(10,10);
 
         try {
             saque.executar(1, BigDecimal.ONE);
