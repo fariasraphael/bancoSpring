@@ -62,7 +62,8 @@ class SaqueTest {
         Conta conta = new Conta(ModalidadeConta.CC, null);
         conta.deposito(BigDecimal.TEN);
         when(repository.findContaByNumeroConta(10)).thenThrow(RuntimeException.class);
-        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(), "O saldo inicial da conta deve ser alterado para 10");
+        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(),
+                "O saldo inicial da conta deve ser alterado para 10");
 
         try {
             saque.executar(1, BigDecimal.ONE);
