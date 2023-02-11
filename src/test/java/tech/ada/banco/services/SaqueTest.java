@@ -24,21 +24,22 @@ class SaqueTest {
     private final ContaRepository repository = Mockito.mock(ContaRepository.class);
     private final Saque saque = new Saque(repository);
 
-    
 
     @Test
     void testSaqueParcial() {
         Conta conta = new Conta(ModalidadeConta.CC, null);
         conta.deposito(BigDecimal.TEN);
         when(repository.findContaByNumeroConta(10)).thenReturn(Optional.of(conta));
-        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(), "O saldo inicial da conta deve ser alterado para 10");
+        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(),
+                "O saldo inicial da conta deve ser alterado para 10");
 
-        BigDecimal resp = saque.executar(10, BigDecimal.ONE);
+        BigDecimal resp = saque.executar(10, BigDecimal.ONE.setScale(2));
 
         verify(repository, times(1)).save(conta);
-        assertEquals(BigDecimal.valueOf(9), resp, "O valor de retorno da função tem que ser 9. Saldo anterior " +
-                "vale 10 e o valor de saque é 1");
-        assertEquals(BigDecimal.valueOf(9), conta.getSaldo());
+        assertEquals(BigDecimal.valueOf(9).setScale(2), resp,
+                "O valor de retorno da função tem que ser 9." +
+                        "Saldo anterior vale 10 e o valor de saque é 1");
+        assertEquals(BigDecimal.valueOf(9).setScale(2), conta.getSaldo());
     }
 
     @Test
