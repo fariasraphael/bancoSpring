@@ -45,8 +45,8 @@ class SaqueControllerTest extends BaseContaTest {
                         .andReturn().getResponse().getContentAsString();
 
         contaBase = obtemContaDoBanco(contaBase);
-        assertEquals("0", response);
-        assertEquals(BigDecimal.ZERO, contaBase.getSaldo());
+        assertEquals("0.00", response);
+        assertEquals(BigDecimal.ZERO.setScale(2), contaBase.getSaldo());
     }
 
     @Test
@@ -63,7 +63,7 @@ class SaqueControllerTest extends BaseContaTest {
 
         contaBase = obtemContaDoBanco(contaBase);
         assertEquals("Limite acima do saldo disponível!", response);
-        assertEquals(BigDecimal.ONE, contaBase.getSaldo());
+        assertEquals(BigDecimal.ONE.setScale(2), contaBase.getSaldo());
 
     }
 
@@ -81,7 +81,7 @@ class SaqueControllerTest extends BaseContaTest {
 
         contaBase = obtemContaDoBanco(contaBase);
         assertEquals("Valor informado está inválido.", response);
-        assertEquals(BigDecimal.ONE, contaBase.getSaldo());
+        assertEquals(BigDecimal.ONE.setScale(2), contaBase.getSaldo());
 
     }
 
@@ -98,8 +98,8 @@ class SaqueControllerTest extends BaseContaTest {
                         .andReturn().getResponse().getContentAsString();
 
         contaBase = obtemContaDoBanco(contaBase);
-        assertEquals("7", response);
-        assertEquals(BigDecimal.valueOf(7), contaBase.getSaldo());
+        assertEquals("7.00", response);
+        assertEquals(BigDecimal.valueOf(7).setScale(2), contaBase.getSaldo());
     }
 
     @Test
@@ -115,8 +115,8 @@ class SaqueControllerTest extends BaseContaTest {
                         .andReturn().getResponse().getContentAsString();
 
         contaBase = obtemContaDoBanco(contaBase);
-        assertEquals("6.3", response);
-        assertEquals(BigDecimal.valueOf(6.3), contaBase.getSaldo());
+        assertEquals("6.30", response);
+        assertEquals(BigDecimal.valueOf(6.3).setScale(2), contaBase.getSaldo());
     }
 
     @Test
@@ -135,7 +135,7 @@ class SaqueControllerTest extends BaseContaTest {
 
         contaBase = obtemContaDoBanco(contaBase);
         assertEquals("Recurso não encontrado.", response);
-        assertEquals(BigDecimal.valueOf(10), contaBase.getSaldo());
+        assertEquals(BigDecimal.valueOf(10).setScale(2), contaBase.getSaldo());
     }
 
 }

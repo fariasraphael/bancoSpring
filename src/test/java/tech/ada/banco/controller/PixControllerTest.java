@@ -33,9 +33,9 @@ class PixControllerTest extends BaseContaTest {
 
         contaOrigem = obtemContaDoBanco(contaOrigem);
         contaDestino = obtemContaDoBanco(contaDestino);
-        assertEquals("8", response);
-        assertEquals(BigDecimal.valueOf(8), contaOrigem.getSaldo());
-        assertEquals(BigDecimal.valueOf(3), contaDestino.getSaldo());
+        assertEquals("8.00", response);
+        assertEquals(BigDecimal.valueOf(8).setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.valueOf(3).setScale(2), contaDestino.getSaldo());
     }
 
     @Test
@@ -79,8 +79,8 @@ class PixControllerTest extends BaseContaTest {
         contaOrigem = obtemContaDoBanco(contaOrigem);
         contaDestino = obtemContaDoBanco(contaDestino);
         assertEquals("Limite acima do saldo disponível!", response);
-        assertEquals(BigDecimal.ZERO, contaOrigem.getSaldo());
-        assertEquals(BigDecimal.ONE, contaDestino.getSaldo());
+        assertEquals(BigDecimal.ZERO.setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.ONE.setScale(2), contaDestino.getSaldo());
     }
 
     @Test
@@ -101,8 +101,8 @@ class PixControllerTest extends BaseContaTest {
         contaOrigem = obtemContaDoBanco(contaOrigem);
         contaDestino = obtemContaDoBanco(contaDestino);
         assertEquals("Valor informado está inválido.", response);
-        assertEquals(BigDecimal.ZERO, contaOrigem.getSaldo());
-        assertEquals(BigDecimal.ONE, contaDestino.getSaldo());
+        assertEquals(BigDecimal.ZERO.setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.ONE.setScale(2), contaDestino.getSaldo());
     }
 
     @Test
@@ -126,8 +126,8 @@ class PixControllerTest extends BaseContaTest {
         contaDestino = obtemContaDoBanco(contaDestino);
 
         assertEquals("Recurso não encontrado.", response);
-        assertEquals(BigDecimal.TEN, contaOrigem.getSaldo());
-        assertEquals(BigDecimal.ONE, contaDestino.getSaldo());
+        assertEquals(BigDecimal.TEN.setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.ONE.setScale(2), contaDestino.getSaldo());
     }
     @Test
     void testeTransferenciaPixParaContaDestinoIvalida() throws Exception {
@@ -150,7 +150,7 @@ class PixControllerTest extends BaseContaTest {
         contaDestino = obtemContaDoBanco(contaDestino);
 
         //assertEquals("Recurso não encontrado.", response);
-        assertEquals(BigDecimal.TEN, contaOrigem.getSaldo());
-        assertEquals(BigDecimal.ONE, contaDestino.getSaldo());
+        assertEquals(BigDecimal.TEN.setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.ONE.setScale(2), contaDestino.getSaldo());
     }
 }

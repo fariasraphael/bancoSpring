@@ -17,97 +17,70 @@ class PixTest {
     private final ContaRepository repository = Mockito.mock(ContaRepository.class);
     private final Pix pix = new Pix(repository);
 
+    private Conta criaConta(double valor, int numeroDaConta) {
+        Conta conta = new Conta(ModalidadeConta.CC, null);
+        conta.deposito(BigDecimal.valueOf(valor));
+        when(repository.findContaByNumeroConta(numeroDaConta)).thenReturn(Optional.of(conta));
+        assertEquals(BigDecimal.valueOf(valor).setScale(2), conta.getSaldo(),
+                "O saldo inicial da conta origem deve ser de " + valor);
+        return conta;
+    }
+
     @Test
     void testTransferenciaPixValorTotal() {
-        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
-        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
-        contaOrigem.deposito(BigDecimal.valueOf(13));
+        Conta contaOrigem = criaConta(10, 3);
+        Conta contaDestino = criaConta(0, 5);
 
-        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));
-        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
-
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 13");
-        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 0");
-
-        BigDecimal retornoDaTransferencia = pix.executar(3, 5, BigDecimal.valueOf(13));
+        BigDecimal retornoDaTransferencia = pix.executar(3, 5, BigDecimal.valueOf(10));
 
         verify(repository, times(1)).save(contaOrigem);
         verify(repository, times(1)).save(contaDestino);
 
-        assertEquals(BigDecimal.valueOf(0), retornoDaTransferencia,
+        assertEquals(BigDecimal.valueOf(0).setScale(2), retornoDaTransferencia,
                 "O valor de retorno da função tem que ser 0. " +
-                        "Saldo anterior vale 13 e o valor de saque é 13");
-        assertEquals(BigDecimal.valueOf(0), contaOrigem.getSaldo());
-        assertEquals(BigDecimal.valueOf(13), contaDestino.getSaldo());
+                        "Saldo anterior vale 10 e o valor de saque é 10");
+        assertEquals(BigDecimal.valueOf(0).setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.valueOf(10).setScale(2), contaDestino.getSaldo());
     }
 
     @Test
     void testTransferenciaPixValorParcial() {
-        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
-        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
-        contaOrigem.deposito(BigDecimal.valueOf(13));
-
-        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));
-        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
-
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 13");
-        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 0");
+        Conta contaOrigem = criaConta(10, 3);
+        Conta contaDestino = criaConta(0, 5);
 
         BigDecimal retornoDaTransferencia = pix.executar(3, 5, BigDecimal.valueOf(7));
 
         verify(repository, times(1)).save(contaOrigem);
         verify(repository, times(1)).save(contaDestino);
 
-        assertEquals(BigDecimal.valueOf(6), retornoDaTransferencia,
+        assertEquals(BigDecimal.valueOf(3).setScale(2), retornoDaTransferencia,
                 "O valor de retorno da função tem que ser 9. " +
                         "Saldo anterior vale 13 e o valor de saque é 7");
-        assertEquals(BigDecimal.valueOf(6), contaOrigem.getSaldo());
-        assertEquals(BigDecimal.valueOf(7), contaDestino.getSaldo());
+        assertEquals(BigDecimal.valueOf(3).setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.valueOf(7).setScale(2), contaDestino.getSaldo());
     }
 
     @Test
     void testTransferenciaPixValorParcialComValorDecimal() {
-        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
-        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
-        contaOrigem.deposito(BigDecimal.valueOf(13));
-
-        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));
-        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
-
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 13");
-        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 0");
+        Conta contaOrigem = criaConta(13, 3);
+        Conta contaDestino = criaConta(0, 5);
 
         BigDecimal retornoDaTransferencia = pix.executar(3, 5, BigDecimal.valueOf(1.42));
 
         verify(repository, times(1)).save(contaOrigem);
         verify(repository, times(1)).save(contaDestino);
 
-        assertEquals(BigDecimal.valueOf(11.58), retornoDaTransferencia,
+        assertEquals(BigDecimal.valueOf(11.58).setScale(2), retornoDaTransferencia,
                 "O valor de retorno da função tem que ser 11.58. " +
                         "Saldo anterior vale 13 e o valor de saque é 1.42");
-        assertEquals(BigDecimal.valueOf(11.58), contaOrigem.getSaldo());
-        assertEquals(BigDecimal.valueOf(1.42), contaDestino.getSaldo());
+        assertEquals(BigDecimal.valueOf(11.58).setScale(2), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.valueOf(1.42).setScale(2), contaDestino.getSaldo());
     }
 
     @Test
     void testTransferenciaPixContaOrigemNaoEncontrada() {
-        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
-        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
-        contaOrigem.deposito(BigDecimal.valueOf(13));
-
-        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));
-        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
-
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 13");
-        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 0");
+        Conta contaOrigem = criaConta(13, 3);
+        Conta contaDestino = criaConta(0, 5);
 
         try {
             pix.executar(7, 5, BigDecimal.valueOf(7));
@@ -118,25 +91,16 @@ class PixTest {
 
         verify(repository, times(0)).save(any());
         verify(repository, times(0)).save(any());
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+        assertEquals(BigDecimal.valueOf(13).setScale(2), contaOrigem.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
-        assertEquals(BigDecimal.valueOf(0), contaDestino.getSaldo(),
+        assertEquals(BigDecimal.valueOf(0).setScale(2), contaDestino.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
     }
 
     @Test
     void testTransferenciaPixContaDestinoNaoEncontrada() {
-        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
-        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
-        contaOrigem.deposito(BigDecimal.valueOf(13));
-
-        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));
-        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
-
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 13");
-        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 0");
+        Conta contaOrigem = criaConta(13, 3);
+        Conta contaDestino = criaConta(0, 5);
 
         try {
             pix.executar(3, 7, BigDecimal.valueOf(7));
@@ -147,25 +111,16 @@ class PixTest {
 
         verify(repository, times(0)).save(any());
         verify(repository, times(0)).save(any());
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+        assertEquals(BigDecimal.valueOf(13).setScale(2), contaOrigem.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
-        assertEquals(BigDecimal.valueOf(0), contaDestino.getSaldo(),
+        assertEquals(BigDecimal.valueOf(0).setScale(2), contaDestino.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
     }
 
     @Test
     void testTransferenciaPixProblemaDeBancoDeDadosGravacaoDaContaDeOrigem() {
-        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
-        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
-        contaOrigem.deposito(BigDecimal.valueOf(13));
-
-        when(repository.findContaByNumeroConta(3)).thenThrow(RuntimeException.class);
-        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
-
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 13");
-        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 0");
+        Conta contaOrigem = criaConta(13, 3);
+        Conta contaDestino = criaConta(0, 5);
 
         try {
             pix.executar(3, 7, BigDecimal.valueOf(7));
@@ -176,26 +131,16 @@ class PixTest {
 
         verify(repository, times(0)).save(any());
         verify(repository, times(0)).save(any());
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+        assertEquals(BigDecimal.valueOf(13).setScale(2), contaOrigem.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
-        assertEquals(BigDecimal.valueOf(0), contaDestino.getSaldo(),
+        assertEquals(BigDecimal.valueOf(0).setScale(2), contaDestino.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
     }
 
     @Test
     void testTransferenciaPixProblemaDeBancoDeDadosGravacaoDaContaDeDestino() {
-        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
-        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
-        contaOrigem.deposito(BigDecimal.valueOf(13));
-
-        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));
-        ;
-        when(repository.findContaByNumeroConta(5)).thenThrow(RuntimeException.class);
-
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 13");
-        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
-                "O saldo inicial da conta origem deve ser de 0");
+        Conta contaOrigem = criaConta(13, 3);
+        Conta contaDestino = criaConta(0, 5);
 
         try {
             pix.executar(3, 7, BigDecimal.valueOf(7));
@@ -206,9 +151,9 @@ class PixTest {
 
         verify(repository, times(0)).save(any());
         verify(repository, times(0)).save(any());
-        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+        assertEquals(BigDecimal.valueOf(13).setScale(2), contaOrigem.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
-        assertEquals(BigDecimal.valueOf(0), contaDestino.getSaldo(),
+        assertEquals(BigDecimal.valueOf(0).setScale(2), contaDestino.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
     }
 

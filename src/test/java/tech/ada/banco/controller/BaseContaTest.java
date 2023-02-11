@@ -26,7 +26,7 @@ abstract class BaseContaTest {
         Conta contaBase = repository.save(new Conta(ModalidadeConta.CC, null));
         contaBase.deposito(saldo);
         contaBase = repository.save(contaBase);
-        assertEquals(saldo, contaBase.getSaldo());
+        assertEquals(saldo.setScale(2), contaBase.getSaldo());
         return contaBase;
     }
 
