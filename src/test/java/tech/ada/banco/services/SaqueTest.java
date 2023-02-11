@@ -28,7 +28,7 @@ private Conta criarConta(double valor, int numeroDaConta){
     Conta conta = new Conta(ModalidadeConta.CC, null);
     conta.deposito(BigDecimal.valueOf(valor));
     when(repository.findContaByNumeroConta(numeroDaConta)).thenReturn(Optional.of(conta));
-    assertEquals(BigDecimal.valueOf(valor), conta.getSaldo(),
+    assertEquals(BigDecimal.valueOf(valor).setScale(2), conta.getSaldo(),
             "O saldo inicial da conta deve ser alterado para " + valor);
     return conta;
 }
@@ -44,6 +44,18 @@ private Conta criarConta(double valor, int numeroDaConta){
                         "Saldo anterior vale 10.00 e o valor de saque é 1.00");
         assertEquals(BigDecimal.valueOf(9).setScale(2), conta.getSaldo());
     }
+    @Test
+    void testSaqueTotal() {
+        Conta conta = criarConta(10,10);
+
+        BigDecimal resp = saque.executar(10, BigDecimal.TEN.setScale(2));
+
+        verify(repository, times(1)).save(conta);
+        assertEquals(BigDecimal.valueOf(0).setScale(2), resp,
+                "O valor de retorno da função tem que ser 0.00" +
+                        "Saldo anterior vale 10.00 e o valor de saque é 10.00");
+        assertEquals(BigDecimal.valueOf(0).setScale(2), conta.getSaldo());
+    }
 
     @Test
     void testSaqueContaNaoEncontrada() {
@@ -57,16 +69,13 @@ private Conta criarConta(double valor, int numeroDaConta){
         }
 
         verify(repository, times(0)).save(any());
-        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(), "O saldo da conta não pode ter sido alterado.");
+        assertEquals(BigDecimal.valueOf(10).setScale(2), conta.getSaldo(),
+                "O saldo da conta não pode ter sido alterado.");
     }
 
     @Test
     void testSaqueProblemaDeBancoDeDados() {
-        Conta conta = new Conta(ModalidadeConta.CC, null);
-        conta.deposito(BigDecimal.TEN);
-        when(repository.findContaByNumeroConta(10)).thenThrow(RuntimeException.class);
-        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(),
-                "O saldo inicial da conta deve ser alterado para 10");
+        Conta conta = criarConta(10,10);
 
         try {
             saque.executar(1, BigDecimal.ONE);
@@ -76,20 +85,43 @@ private Conta criarConta(double valor, int numeroDaConta){
         }
 
         verify(repository, times(0)).save(any());
-        assertEquals(BigDecimal.valueOf(10), conta.getSaldo(), "O saldo da conta não pode ter sido alterado.");
+        assertEquals(BigDecimal.valueOf(10).setScale(2), conta.getSaldo(),
+                "O saldo da conta não pode ter sido alterado.");
     }
 
     @Test
     void testSaqueMaiorSaldo() {
-        Conta conta = new Conta(ModalidadeConta.CC, null);
-        conta.deposito(BigDecimal.valueOf(5));
-        when(repository.findContaByNumeroConta(10)).thenReturn(Optional.of(conta));
-        assertEquals(BigDecimal.valueOf(5), conta.getSaldo(),
-                "O saldo inicial da conta deve ser alterado para 5");
+        Conta conta = criarConta(5,10);
 
         assertThrows(SaldoInsuficienteException.class, () -> saque.executar(10, BigDecimal.valueOf(6)));
         verify(repository, times(0)).save(any());
-        assertEquals(BigDecimal.valueOf(5), conta.getSaldo(), "O saldo da conta não se alterou");
+        assertEquals(BigDecimal.valueOf(5).setScale(2), conta.getSaldo(), "O saldo da conta não se alterou");
+
+    }
+    @Test
+    void testArredontamentoPraCima(){
+        Conta conta = criarConta(5,10);
+
+        BigDecimal resp = saque.executar(10, BigDecimal.valueOf(1.42857));
+
+        verify(repository, times(1)).save(conta);
+        assertEquals(BigDecimal.valueOf(3.57).setScale(2), resp,
+                "O valor de retorno da função tem que ser 8.57" +
+                        "Saldo anterior vale 10.00 e o valor de saque é 1.43");
+        assertEquals(BigDecimal.valueOf(3.57).setScale(2), conta.getSaldo());
+
+    }
+    @Test
+    void testArredontamentoPraBaixo(){
+        Conta conta = criarConta(5,10);
+
+        BigDecimal resp = saque.executar(10, BigDecimal.valueOf(1.42358));
+
+        verify(repository, times(1)).save(conta);
+        assertEquals(BigDecimal.valueOf(3.58).setScale(2), resp,
+                "O valor de retorno da função tem que ser 8.57" +
+                        "Saldo anterior vale 10.00 e o valor de saque é 1.42");
+        assertEquals(BigDecimal.valueOf(3.58).setScale(2), conta.getSaldo());
 
     }
 }
