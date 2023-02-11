@@ -18,7 +18,7 @@ class PixTest {
     private final Pix pix = new Pix(repository);
 
     @Test
-    void testTransferenciaValorTotal(){
+    void testTransferenciaPixValorTotal(){
         Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
         Conta contaDestino = new Conta(ModalidadeConta.CC, null);
         contaOrigem.deposito(BigDecimal.valueOf(13));
@@ -43,7 +43,7 @@ class PixTest {
         assertEquals(BigDecimal.valueOf(13), contaDestino.getSaldo());
     }
     @Test
-    void testTransferenciaValorParcial(){
+    void testTransferenciaPixValorParcial(){
         Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
         Conta contaDestino = new Conta(ModalidadeConta.CC, null);
         contaOrigem.deposito(BigDecimal.valueOf(13));
@@ -68,7 +68,7 @@ class PixTest {
         assertEquals(BigDecimal.valueOf(7), contaDestino.getSaldo());
     }
     @Test
-    void testTransferenciaValorParcialComValorDecimal(){
+    void testTransferenciaPixValorParcialComValorDecimal(){
         Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
         Conta contaDestino = new Conta(ModalidadeConta.CC, null);
         contaOrigem.deposito(BigDecimal.valueOf(13));
@@ -93,7 +93,7 @@ class PixTest {
         assertEquals(BigDecimal.valueOf(1.42), contaDestino.getSaldo());
     }
     @Test
-    void testTransferenciaContaOrigemNaoEncontrada(){
+    void testTransferenciaPixContaOrigemNaoEncontrada(){
         Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
         Conta contaDestino = new Conta(ModalidadeConta.CC, null);
         contaOrigem.deposito(BigDecimal.valueOf(13));
@@ -121,7 +121,7 @@ class PixTest {
                 "O saldo da conta não pode ter sido alterado.");
     }
     @Test
-    void testTransferenciaContaDestinoNaoEncontrada(){
+    void testTransferenciaPixContaDestinoNaoEncontrada(){
         Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
         Conta contaDestino = new Conta(ModalidadeConta.CC, null);
         contaOrigem.deposito(BigDecimal.valueOf(13));
@@ -138,6 +138,34 @@ class PixTest {
             pix.executar(3,7,BigDecimal.valueOf(7));
             fail("A conta de destino deveria não ter sido encontrada.");
         } catch (ResourceNotFoundException e){
+
+        }
+
+        verify(repository, times(0)).save(any());
+        verify(repository, times(0)).save(any());
+        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+                "O saldo da conta não pode ter sido alterado.");
+        assertEquals(BigDecimal.valueOf(0), contaDestino.getSaldo(),
+                "O saldo da conta não pode ter sido alterado.");
+    }
+    @Test
+    void testTransferenciaPixProblemaDeBancoDeDados(){
+        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
+        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
+        contaOrigem.deposito(BigDecimal.valueOf(13));
+
+        when(repository.findContaByNumeroConta(3)).thenThrow(RuntimeException.class);
+        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
+
+        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+                "O saldo inicial da conta origem deve ser de 13");
+        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
+                "O saldo inicial da conta origem deve ser de 0");
+
+        try{
+            pix.executar(3,7,BigDecimal.valueOf(7));
+            fail("A conta deveria não ter sido encontrada. Por problema de conexao de banco de dados");
+        } catch (RuntimeException e){
 
         }
 
