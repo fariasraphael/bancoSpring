@@ -3,6 +3,7 @@ package tech.ada.banco.services;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import tech.ada.banco.exceptions.ResourceNotFoundException;
+import tech.ada.banco.exceptions.SaldoInsuficienteException;
 import tech.ada.banco.model.Conta;
 import tech.ada.banco.model.ModalidadeConta;
 import tech.ada.banco.repository.ContaRepository;
@@ -64,6 +65,27 @@ class PixTest {
         assertEquals(BigDecimal.valueOf(6), retornoDaTransferencia,
                 "O valor de retorno da função tem que ser 9. " +
                         "Saldo anterior vale 13 e o valor de saque é 7");
+        assertEquals(BigDecimal.valueOf(6), contaOrigem.getSaldo());
+        assertEquals(BigDecimal.valueOf(7), contaDestino.getSaldo());
+    }
+    @Test
+    void testTransferenciaPixValorMaiorQueOSaldo(){
+        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
+        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
+        contaOrigem.deposito(BigDecimal.valueOf(13));
+
+        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));
+        when(repository.findContaByNumeroConta(5)).thenReturn(Optional.of(contaDestino));
+
+        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+                "O saldo inicial da conta origem deve ser de 13");
+        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
+                "O saldo inicial da conta origem deve ser de 0");
+
+        assertThrows(SaldoInsuficienteException.class, ()-> pix.executar(3,5,BigDecimal.valueOf(30)));
+
+        verify(repository, times(0)).save(any());
+        verify(repository, times(0)).save(any());
         assertEquals(BigDecimal.valueOf(6), contaOrigem.getSaldo());
         assertEquals(BigDecimal.valueOf(7), contaDestino.getSaldo());
     }
