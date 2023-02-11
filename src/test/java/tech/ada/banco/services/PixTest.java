@@ -149,7 +149,7 @@ class PixTest {
                 "O saldo da conta não pode ter sido alterado.");
     }
     @Test
-    void testTransferenciaPixProblemaDeBancoDeDados(){
+    void testTransferenciaPixProblemaDeBancoDeDadosGravacaoDaContaDeOrigem(){
         Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
         Conta contaDestino = new Conta(ModalidadeConta.CC, null);
         contaOrigem.deposito(BigDecimal.valueOf(13));
@@ -164,7 +164,7 @@ class PixTest {
 
         try{
             pix.executar(3,7,BigDecimal.valueOf(7));
-            fail("A conta deveria não ter sido encontrada. Por problema de conexao de banco de dados");
+            fail("A conta Origem deveria não ter sido encontrada. Por problema de conexao de banco de dados");
         } catch (RuntimeException e){
 
         }
@@ -176,4 +176,33 @@ class PixTest {
         assertEquals(BigDecimal.valueOf(0), contaDestino.getSaldo(),
                 "O saldo da conta não pode ter sido alterado.");
     }
+    @Test
+    void testTransferenciaPixProblemaDeBancoDeDadosGravacaoDaContaDeDestino(){
+        Conta contaOrigem = new Conta(ModalidadeConta.CC, null);
+        Conta contaDestino = new Conta(ModalidadeConta.CC, null);
+        contaOrigem.deposito(BigDecimal.valueOf(13));
+
+        when(repository.findContaByNumeroConta(3)).thenReturn(Optional.of(contaOrigem));;
+        when(repository.findContaByNumeroConta(5)).thenThrow(RuntimeException.class);
+
+        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+                "O saldo inicial da conta origem deve ser de 13");
+        assertEquals(BigDecimal.ZERO, contaDestino.getSaldo(),
+                "O saldo inicial da conta origem deve ser de 0");
+
+        try{
+            pix.executar(3,7,BigDecimal.valueOf(7));
+            fail("A conta Destino deveria não ter sido encontrada. Por problema de conexao de banco de dados");
+        } catch (RuntimeException e){
+
+        }
+
+        verify(repository, times(0)).save(any());
+        verify(repository, times(0)).save(any());
+        assertEquals(BigDecimal.valueOf(13), contaOrigem.getSaldo(),
+                "O saldo da conta não pode ter sido alterado.");
+        assertEquals(BigDecimal.valueOf(0), contaDestino.getSaldo(),
+                "O saldo da conta não pode ter sido alterado.");
+    }
+
 }
