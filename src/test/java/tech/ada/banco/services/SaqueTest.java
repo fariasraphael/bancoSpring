@@ -24,6 +24,8 @@ class SaqueTest {
     private final ContaRepository repository = Mockito.mock(ContaRepository.class);
     private final Saque saque = new Saque(repository);
 
+    
+
     @Test
     void testSaqueParcial() {
         Conta conta = new Conta(ModalidadeConta.CC, null);
