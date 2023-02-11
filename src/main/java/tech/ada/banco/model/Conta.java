@@ -60,8 +60,8 @@ public class Conta {
         return tipo;
     }
 
-    public BigDecimal getSaldo() {
-        return saldo;
+    public BigDecimal   getSaldo() {
+        return saldo.setScale(2);
     }
 
     public void deposito(BigDecimal valor) {
