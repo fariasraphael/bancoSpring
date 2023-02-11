@@ -81,7 +81,8 @@ class SaqueTest {
         Conta conta = new Conta(ModalidadeConta.CC, null);
         conta.deposito(BigDecimal.valueOf(5));
         when(repository.findContaByNumeroConta(10)).thenReturn(Optional.of(conta));
-        assertEquals(BigDecimal.valueOf(5), conta.getSaldo(), "O saldo inicial da conta deve ser alterado para 5");
+        assertEquals(BigDecimal.valueOf(5), conta.getSaldo(),
+                "O saldo inicial da conta deve ser alterado para 5");
 
         assertThrows(SaldoInsuficienteException.class, () -> saque.executar(10, BigDecimal.valueOf(6)));
         verify(repository, times(0)).save(any());
