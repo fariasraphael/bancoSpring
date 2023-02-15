@@ -138,7 +138,7 @@ class PixControllerTest extends BaseContaTest {
         assertTrue(contaInexistente.isEmpty());
 
         String response =
-                mvc.perform(post(baseUri + "/" + contaOrigem)
+                mvc.perform(post(baseUri + "/" + contaOrigem.getNumeroConta())
                                 .param("destino", "9997")
                                 .param("valor", "10")
                                 .contentType(MediaType.APPLICATION_JSON))
