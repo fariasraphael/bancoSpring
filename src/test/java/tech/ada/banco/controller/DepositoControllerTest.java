@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+
 class DepositoControllerTest extends BaseContaTest {
 
     private final String baseUri = "/deposito";
@@ -29,8 +31,8 @@ class DepositoControllerTest extends BaseContaTest {
                         .andReturn().getResponse().getContentAsString();
 
         contaBase = obtemContaDoBanco(contaBase);
-        assertEquals("10", response);
-        assertEquals(BigDecimal.TEN, contaBase.getSaldo());
+        assertEquals("10.00", response);
+        assertEquals(BigDecimal.TEN.setScale(2), contaBase.getSaldo());
     }
 
     @Test
@@ -47,7 +49,7 @@ class DepositoControllerTest extends BaseContaTest {
 
         contaBase = obtemContaDoBanco(contaBase);
         assertEquals("Valor informado está inválido.", response);
-        assertEquals(BigDecimal.ZERO, contaBase.getSaldo());
+        assertEquals(BigDecimal.ZERO.setScale(2), contaBase.getSaldo());
     }
 
     @Test
@@ -81,6 +83,6 @@ class DepositoControllerTest extends BaseContaTest {
                 .andReturn().getResponse().getContentAsString();
 
         contaBase = obtemContaDoBanco(contaBase);
-        assertEquals(BigDecimal.ZERO, contaBase.getSaldo());
+        assertEquals(BigDecimal.ZERO.setScale(2), contaBase.getSaldo());
     }
 }

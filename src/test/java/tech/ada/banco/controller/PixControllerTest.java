@@ -143,13 +143,13 @@ class PixControllerTest extends BaseContaTest {
                                 .param("valor", "10")
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andDo(print())
-                        .andExpect(status().isBadRequest())
+                        .andExpect(status().isNotFound())
                         .andReturn().getResponse().getErrorMessage();
 
         contaOrigem = obtemContaDoBanco(contaOrigem);
         contaDestino = obtemContaDoBanco(contaDestino);
 
-        //assertEquals("Recurso não encontrado.", response);
+        assertEquals("Recurso não encontrado.", response);
         assertEquals(BigDecimal.TEN.setScale(2), contaOrigem.getSaldo());
         assertEquals(BigDecimal.ONE.setScale(2), contaDestino.getSaldo());
     }

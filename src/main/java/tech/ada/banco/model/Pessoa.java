@@ -59,4 +59,8 @@ public class Pessoa {
         }
     }
 
+    public String getCPF() {
+        return cpf;
+    }
+
 }

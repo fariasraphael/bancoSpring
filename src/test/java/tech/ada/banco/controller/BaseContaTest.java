@@ -6,7 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import tech.ada.banco.model.Conta;
 import tech.ada.banco.model.ModalidadeConta;
+import tech.ada.banco.model.Pessoa;
 import tech.ada.banco.repository.ContaRepository;
+import tech.ada.banco.repository.PessoaRepository;
 
 import java.math.BigDecimal;
 
@@ -21,6 +23,7 @@ abstract class BaseContaTest {
 
     @Autowired
     protected ContaRepository repository;
+    protected PessoaRepository repositoryP;
 
     protected Conta criarConta(BigDecimal saldo) {
         Conta contaBase = repository.save(new Conta(ModalidadeConta.CC, null));
@@ -32,6 +35,11 @@ abstract class BaseContaTest {
 
     protected Conta obtemContaDoBanco(Conta contaBase) {
         return repository.findContaByNumeroConta(contaBase.getNumeroConta())
+                .orElseThrow(NullPointerException::new);
+    }
+
+    protected Pessoa obtemPessoa (Pessoa pessoaBase) {
+        return repositoryP.findPessoaByCPF(pessoaBase.getCPF())
                 .orElseThrow(NullPointerException::new);
     }
 
